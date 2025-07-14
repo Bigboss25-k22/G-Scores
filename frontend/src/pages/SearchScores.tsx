@@ -1,17 +1,37 @@
-import React, { useState } from 'react';
-import { useTopBlock } from '../hooks/useTopBlock';
+import React, { useState, useEffect } from 'react';
+import { useApi } from '../hooks/useApi';
+import ErrorMessage from '../components/Common/ErrorMessage';
+import PopupError from '../components/Common/PopupError';
 
 const SearchScores: React.FC = () => {
   const [regNumber, setRegNumber] = useState('');
-  const { data, loading, error, search } = useTopBlock();
+  const [inputError, setInputError] = useState<string | null>(null);
+  const [showPopup, setShowPopup] = useState(false);
+  const { data, loading, error, execute, reset } = useApi<any>();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (regNumber.trim()) search(regNumber.trim());
+    if (!/^\d{8}$/.test(regNumber.trim())) {
+      setInputError('Registration Number phải gồm đúng 8 chữ số.');
+      setShowPopup(true);
+      return;
+    }
+    setInputError(null);
+    execute(`${process.env.REACT_APP_API_URL || 'http://localhost:3000'}/students/${regNumber.trim()}`);
   };
 
+  useEffect(() => {
+    if (error) setShowPopup(true);
+  }, [error]);
+
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-8">
+      {(inputError || error) && showPopup && (
+        <PopupError
+          message={inputError || error || ''}
+          onClose={() => setShowPopup(false)}
+        />
+      )}
       <form onSubmit={handleSubmit} className="space-y-4">
         <label className="block text-sm font-medium text-gray-700 mb-2">Registration Number:</label>
         <div className="flex flex-col sm:flex-row gap-2">
@@ -32,28 +52,31 @@ const SearchScores: React.FC = () => {
           </button>
         </div>
       </form>
-      {error && <div className="text-red-600 text-sm mt-1">{error}</div>}
-      {data && (
+      {data && data.success && data.data && (
         <div className="bg-white rounded-lg shadow-md p-6 mt-6">
-          <h2 className="text-xl font-bold mb-2">{data.data.name} ({data.data.regNumber})</h2>
-          <table className="min-w-full border mt-4">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="px-4 py-2 border">Subject</th>
-                <th className="px-4 py-2 border">Score</th>
-                <th className="px-4 py-2 border">Type</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.data.subjects.map((s, idx) => (
-                <tr key={idx}>
-                  <td className="px-4 py-2 border">{s.name}</td>
-                  <td className="px-4 py-2 border">{s.score}</td>
-                  <td className="px-4 py-2 border">{s.type}</td>
+          <div className="mb-4 text-green-700 font-semibold text-center">
+            Kết quả tra cứu cho thí sinh: {data.data.name}
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border mt-4 mx-auto text-center">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="px-4 py-2 border text-center">Số Báo Danh</th>
+                  {data.data.subjects.map((s: any, idx: number) => (
+                    <th key={idx} className="px-4 py-2 border text-center">{s.name}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="px-4 py-2 border font-semibold text-center">{data.data.regNumber}</td>
+                  {data.data.subjects.map((s: any, idx: number) => (
+                    <td key={idx} className="px-4 py-2 border text-center">{s.score}</td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

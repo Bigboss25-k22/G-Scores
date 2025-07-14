@@ -1,5 +1,6 @@
 import { ApiResponse, ScoreSearchRequest, ScoreSearchResponse } from '../types/api';
 import { TopBlockResponse } from '../types/score';
+import { SubjectReportResponse } from '../types/report';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000';
 
@@ -50,7 +51,14 @@ class ApiService {
 export const apiService = new ApiService(); 
 
 export async function fetchTopBlock(regNumber: string): Promise<TopBlockResponse> {
-  const res = await fetch(`${API_BASE_URL}/top-block?block=B&regNumber=${regNumber}`);
+  // Gọi endpoint mới lấy thông tin sinh viên theo số báo danh
+  const res = await fetch(`${API_BASE_URL}/students/${regNumber}`);
+  if (!res.ok) throw new Error('Failed to fetch');
+  return res.json();
+} 
+
+export async function fetchSubjectReport(subject: string): Promise<SubjectReportResponse> {
+  const res = await fetch(`${API_BASE_URL}/report/subject?subject=${encodeURIComponent(subject)}`);
   if (!res.ok) throw new Error('Failed to fetch');
   return res.json();
 } 
