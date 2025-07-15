@@ -78,12 +78,19 @@ export class StudentService {
       { score: number, count: number }[]
     >`
       WITH filtered_subjects AS (
-        SELECT * FROM "Subject" WHERE name = ${subjectName}
+        SELECT score FROM "Subject" WHERE name = ${subjectName}
+      ),
+      score_bins AS (
+        SELECT generate_series(0, 10, ${step}) AS score
       )
-      SELECT ${scoreExpr} AS score, COUNT(*) AS count
-      FROM filtered_subjects
-      GROUP BY ${scoreExpr}
-      ORDER BY ${scoreExpr} ASC
+      SELECT
+        score_bins.score,
+        COUNT(fs.score) AS count
+      FROM score_bins
+      LEFT JOIN filtered_subjects fs
+        ON ABS(fs.score - score_bins.score) < ${step} / 2.0
+      GROUP BY score_bins.score
+      ORDER BY score_bins.score ASC
     `;
 
     const levels = await prisma.$queryRaw<
