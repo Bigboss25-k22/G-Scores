@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { StudentService } from '../services/StudentService';
 import { BlockA, BlockA1, BlockB, BlockC, BlockD } from '../models/Block';
+import client from '../utils/redisClient';
 
 const studentService = new StudentService();
 
@@ -21,11 +22,18 @@ export const getTopBlock = async (req: Request, res: Response) => {
       data: null,
     });
   }
+  const cacheKey = `topBlock:${block}`;
+  const cached = await client.get(cacheKey);
+  if (cached) {
+    return res.json(JSON.parse(cached));
+  }
   const blockInstance = new blockMap[block as string]();
   const data = await studentService.getTopStudentsByBlock(blockInstance, 10);
-  res.json({
+  const result = {
     success: true,
     message: `Top 10 học sinh khối ${block}`,
     data,
-  });
+  };
+  await client.set(cacheKey, JSON.stringify(result), { EX: 600 });
+  res.json(result);
 }; 

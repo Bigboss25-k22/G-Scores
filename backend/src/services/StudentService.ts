@@ -72,21 +72,25 @@ export class StudentService {
 
   // RAW SQL: Thống kê số lượng học sinh theo level và phân phối điểm cho một môn
   async getSubjectStatisticsRaw(subjectName: string, step: number = 0.25) {
-    // Lấy phân phối điểm
+    // Dùng CTE để lọc trước các subject theo tên
     const scoreDist = await prisma.$queryRaw<
       { score: number, count: number }[]
     >`
+      WITH filtered_subjects AS (
+        SELECT * FROM "Subject" WHERE name = ${subjectName}
+      )
       SELECT ROUND(score::numeric / ${step}) * ${step} AS score, COUNT(*) AS count
-      FROM "Subject"
-      WHERE name = ${subjectName}
+      FROM filtered_subjects
       GROUP BY score
       ORDER BY score ASC
     `;
 
-    // Lấy thống kê theo level
     const levels = await prisma.$queryRaw<
       { level: string, count: number }[]
     >`
+      WITH filtered_subjects AS (
+        SELECT * FROM "Subject" WHERE name = ${subjectName}
+      )
       SELECT
         CASE
           WHEN score >= 8 THEN 'Giỏi'
@@ -95,8 +99,7 @@ export class StudentService {
           ELSE 'Yếu'
         END AS level,
         COUNT(*) AS count
-      FROM "Subject"
-      WHERE name = ${subjectName}
+      FROM filtered_subjects
       GROUP BY level
     `;
 
@@ -120,12 +123,15 @@ export class StudentService {
         subjects: { name: string, score: number }[]
       }[]
     >`
+      WITH filtered_subjects AS (
+        SELECT * FROM "Subject"
+        WHERE name IN (${Prisma.join(blockSubjects)})
+      )
       SELECT s."regNumber", s.name,
-        SUM(sub.score) as "totalScore",
-        json_agg(json_build_object('name', sub.name, 'score', sub.score)) as subjects
+        SUM(f.score) as "totalScore",
+        json_agg(json_build_object('name', f.name, 'score', f.score)) as subjects
       FROM "Student" s
-      JOIN "Subject" sub ON sub."studentId" = s.id
-      WHERE sub.name IN (${Prisma.join(blockSubjects)})
+      JOIN filtered_subjects f ON f."studentId" = s.id
       GROUP BY s.id
       ORDER BY "totalScore" DESC
       LIMIT ${topN}

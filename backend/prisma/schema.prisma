@@ -22,4 +22,7 @@ model Subject {
   score     Float
   student   Student @relation(fields: [studentId], references: [id])
   studentId Int
+
+  @@index([studentId])
+  @@index([name])
 } 
