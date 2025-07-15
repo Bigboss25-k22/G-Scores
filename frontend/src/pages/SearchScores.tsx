@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useApi } from '../hooks/useApi';
 import ErrorMessage from '../components/Common/ErrorMessage';
 import PopupError from '../components/Common/PopupError';
+import { apiService } from '../services/api';
 
 const SearchScores: React.FC = () => {
   const [regNumber, setRegNumber] = useState('');
   const [inputError, setInputError] = useState<string | null>(null);
   const [showPopup, setShowPopup] = useState(false);
-  const { data, loading, error, execute, reset } = useApi<any>();
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<any>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!/^\d{8}$/.test(regNumber.trim())) {
       setInputError('Registration Number phải gồm đúng 8 chữ số.');
@@ -17,41 +19,56 @@ const SearchScores: React.FC = () => {
       return;
     }
     setInputError(null);
-    execute(`${process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000'}/students/${regNumber.trim()}`);
+    try {
+      setLoading(true);
+      const res = await apiService.getStudentInfo(regNumber.trim());
+      setData(res);
+    } catch (err: any) {
+      setInputError(err.message || 'Lỗi không xác định');
+      setShowPopup(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    if (error) setShowPopup(true);
-  }, [error]);
+    if (inputError || data?.error) setShowPopup(true);
+  }, [inputError, data]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
-      {(inputError || error) && showPopup && (
+      {/* Tiêu đề lớn */}
+      <h1 className="text-3xl font-bold text-center text-blue-900 mb-2">Search Scores</h1>
+      {/* Dòng Detailed Scores */}
+      {(inputError || data?.error) && showPopup && (
         <PopupError
-          message={inputError || error || ''}
+          message={inputError || data?.error || ''}
           onClose={() => setShowPopup(false)}
         />
       )}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Registration Number:</label>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <input
-            type="text"
-            value={regNumber}
-            onChange={e => setRegNumber(e.target.value)}
-            placeholder="Enter registration number"
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-            disabled={loading}
-          />
-          <button
-            type="submit"
-            disabled={loading || !regNumber.trim()}
-            className="bg-black text-white px-6 py-2 rounded-md font-medium hover:bg-gray-800 transition-colors"
-          >
-            {loading ? 'Loading...' : 'Submit'}
-          </button>
-        </div>
-      </form>
+      {/* Card chứa form */}
+      <div className="bg-white rounded-lg shadow-md border border-gray-300 p-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <label className="block text-lg font-semibold text-gray-800 mb-2">Registration Number:</label>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input
+              type="text"
+              value={regNumber}
+              onChange={e => setRegNumber(e.target.value)}
+              placeholder="Enter registration number"
+              className="flex-1 px-4 py-2 border-2 border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-lg"
+              disabled={loading}
+            />
+            <button
+              type="submit"
+              disabled={loading || !regNumber.trim()}
+              className="bg-black text-white px-6 py-2 rounded-md font-medium hover:bg-gray-800 transition-colors text-lg"
+            >
+              {loading ? 'Loading...' : 'Submit'}
+            </button>
+          </div>
+        </form>
+      </div>
       {data && data.success && data.data && (
         <div className="bg-white rounded-lg shadow-md p-6 mt-6">
           <div className="mb-4 text-green-700 font-semibold text-center">

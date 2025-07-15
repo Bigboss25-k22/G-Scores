@@ -38,27 +38,33 @@ class ApiService {
       body: JSON.stringify(request),
     });
   }
-
-  async getStudentInfo(registrationNumber: string): Promise<ApiResponse<any>> {
-    return this.request<any>(`/api/student/${registrationNumber}`);
-  }
-
-  async getReports(): Promise<ApiResponse<any>> {
-    return this.request<any>('/api/reports');
-  }
 }
 
-export const apiService = new ApiService(); 
+// API chuẩn hóa cho toàn bộ FE
+export const apiService = {
+  async getStudentInfo(regNumber: string) {
+    const res = await fetch(`${API_BASE_URL}/students/${regNumber}`);
+    if (!res.ok) throw new Error('Failed to fetch student info');
+    return res.json();
+  },
 
-export async function fetchTopBlock(regNumber: string): Promise<TopBlockResponse> {
-  // Gọi endpoint mới lấy thông tin sinh viên theo số báo danh
-  const res = await fetch(`${API_BASE_URL}/students/${regNumber}`);
-  if (!res.ok) throw new Error('Failed to fetch');
-  return res.json();
-} 
+  async getTopBlock(block: string) {
+    const res = await fetch(`${API_BASE_URL}/top-block?block=${encodeURIComponent(block)}`);
+    if (!res.ok) throw new Error('Failed to fetch top block');
+    return res.json();
+  },
 
-export async function fetchSubjectReport(subject: string): Promise<SubjectReportResponse> {
-  const res = await fetch(`${API_BASE_URL}/report/subject?subject=${encodeURIComponent(subject)}`);
-  if (!res.ok) throw new Error('Failed to fetch');
-  return res.json();
-} 
+  async getSubjectReport(subject: string) {
+    const res = await fetch(`${API_BASE_URL}/report/subject?subject=${encodeURIComponent(subject)}`);
+    if (!res.ok) throw new Error('Failed to fetch subject report');
+    return res.json();
+  },
+
+  async getReports() {
+    const res = await fetch(`${API_BASE_URL}/reports`);
+    if (!res.ok) throw new Error('Failed to fetch reports');
+    return res.json();
+  },
+
+  // Thêm các hàm khác nếu cần
+}; 

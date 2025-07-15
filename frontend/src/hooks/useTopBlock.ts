@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiService } from '../services/api';
 
 export interface TopBlockStudent {
   regNumber: string;
@@ -16,8 +17,7 @@ export function useTopBlock() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000'}/top-block?block=${encodeURIComponent(block)}`);
-      const json = await res.json();
+      const json = await apiService.getTopBlock(block);
       if (json.success) {
         setData(json.data);
       } else {

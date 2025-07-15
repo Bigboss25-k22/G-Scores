@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { fetchSubjectReport } from '../services/api';
+import { apiService } from '../services/api';
 import { SubjectReportResponse } from '../types/report';
 
 export function useSubjectReport() {
@@ -11,7 +11,7 @@ export function useSubjectReport() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchSubjectReport(subject);
+      const res = await apiService.getSubjectReport(subject);
       setData(res);
     } catch (e: any) {
       setError(e.message || 'Unknown error');

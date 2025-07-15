@@ -41,7 +41,7 @@ const Sidebar: React.FC = () => {
               className={`
                 w-full flex items-center px-6 py-3 text-left text-gray-800 
                 hover:bg-black hover:bg-opacity-10 transition-colors
-                ${state.activeSection === item.id ? 'bg-black bg-opacity-20' : ''}
+                ${state.activeSection === item.id ? 'bg-black bg-opacity-20 font-bold text-blue-900' : ''}
               `}
             >
               <Icon className="mr-3" size={20} />
