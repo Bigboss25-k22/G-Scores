@@ -16,7 +16,7 @@ export function useTopBlock() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3000'}/top-block?block=${encodeURIComponent(block)}`);
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000'}/top-block?block=${encodeURIComponent(block)}`);
       const json = await res.json();
       if (json.success) {
         setData(json.data);

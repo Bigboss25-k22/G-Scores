@@ -19,7 +19,7 @@ export const getSubjectReport = async (req: Request, res: Response) => {
     return res.json(JSON.parse(cached));
   }
   const step = subject === 'Toán' ? 0.2 : 0.25;
-  const data = await studentService.getSubjectStatistics(subject as string, step);
+  const data = await studentService.getSubjectStatisticsRaw(subject as string, step);
   const result = {
     success: true,
     message: 'Thống kê thành công',

@@ -28,7 +28,7 @@ export const getTopBlock = async (req: Request, res: Response) => {
     return res.json(JSON.parse(cached));
   }
   const blockInstance = new blockMap[block as string]();
-  const data = await studentService.getTopStudentsByBlock(blockInstance, 10);
+  const data = await studentService.getTopStudentsByBlockRaw(blockInstance.subjects, 10);
   const result = {
     success: true,
     message: `Top 10 học sinh khối ${block}`,
