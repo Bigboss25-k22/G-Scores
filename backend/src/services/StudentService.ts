@@ -28,9 +28,9 @@ export class StudentService {
     const students = await prisma.student.findMany({
       include: { subjects: true },
     });
-    const scored = students.map(student => {
-      const blockSubjects = block.subjects.map(subjName => {
-        const subj = student.subjects.find(s => s.name === subjName);
+    const scored = students.map((student: any) => {
+      const blockSubjects = block.subjects.map((subjName: string) => {
+        const subj = student.subjects.find((s: any) => s.name === subjName);
         return { name: subjName, score: subj ? subj.score : null };
       });
       return {
@@ -41,7 +41,7 @@ export class StudentService {
       };
     });
     return scored
-      .sort((a, b) => b.totalScore - a.totalScore)
+      .sort((a: any, b: any) => b.totalScore - a.totalScore)
       .slice(0, topN);
   }
 
@@ -53,7 +53,7 @@ export class StudentService {
     });
 
     const levels = { 'Giỏi': 0, 'Khá': 0, 'Trung bình': 0, 'Yếu': 0 };
-    for (const s of subjects) {
+    for (const s of subjects as any[]) {
       if (s.score >= 8) levels['Giỏi']++;
       else if (s.score >= 6) levels['Khá']++;
       else if (s.score >= 4) levels['Trung bình']++;
@@ -63,7 +63,7 @@ export class StudentService {
     const scoreDistribution: { score: number, count: number }[] = [];
     for (let score = 0; score <= 10; score += step) {
       const rounded = Math.round(score * 100) / 100;
-      const count = subjects.filter(s => Math.abs(s.score - rounded) < step / 2).length;
+      const count = subjects.filter((s: any) => Math.abs(s.score - rounded) < step / 2).length;
       scoreDistribution.push({ score: rounded, count });
     }
 
@@ -104,7 +104,7 @@ export class StudentService {
     `;
 
     const levelObj: Record<string, number> = { 'Giỏi': 0, 'Khá': 0, 'Trung bình': 0, 'Yếu': 0 };
-    for (const l of levels) levelObj[l.level] = Number(l.count);
+    for (const l of levels as any[]) levelObj[l.level] = Number(l.count);
 
     return {
       subject: subjectName,
@@ -125,7 +125,7 @@ export class StudentService {
     >`
       WITH filtered_subjects AS (
         SELECT * FROM "Subject"
-        WHERE name IN (${Prisma.join(blockSubjects)})
+        WHERE name IN (${blockSubjects.map(s => `'${s}'`).join(',')})
       )
       SELECT s."regNumber", s.name,
         SUM(f.score) as "totalScore",
