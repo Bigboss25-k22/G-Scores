@@ -2,7 +2,7 @@ import { ApiResponse, ScoreSearchRequest, ScoreSearchResponse } from '../types/a
 import { TopBlockResponse } from '../types/score';
 import { SubjectReportResponse } from '../types/report';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000';
 
 class ApiService {
   private async request<T>(

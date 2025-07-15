@@ -79,9 +79,9 @@ export class StudentService {
       WITH filtered_subjects AS (
         SELECT * FROM "Subject" WHERE name = ${subjectName}
       )
-      SELECT ROUND(score::numeric / ${step}) * ${step} AS score, COUNT(*) AS count
+      SELECT ROUND(ROUND(score::numeric / ${step}) * ${step}, 2) AS score, COUNT(*) AS count
       FROM filtered_subjects
-      GROUP BY score
+      GROUP BY ROUND(ROUND(score::numeric / ${step}) * ${step}, 2)
       ORDER BY score ASC
     `;
 
@@ -115,6 +115,7 @@ export class StudentService {
 
   // RAW SQL: Lấy top N học sinh theo khối, trả về điểm từng môn trong khối
   async getTopStudentsByBlockRaw(blockSubjects: string[], topN: number = 10) {
+    if (!blockSubjects || blockSubjects.length === 0) return [];
     const students = await prisma.$queryRaw<
       {
         regNumber: string,
@@ -125,7 +126,7 @@ export class StudentService {
     >`
       WITH filtered_subjects AS (
         SELECT * FROM "Subject"
-        WHERE name IN (${blockSubjects.map(s => `'${s}'`).join(',')})
+        WHERE name IN (${Prisma.join(blockSubjects)})
       )
       SELECT s."regNumber", s.name,
         SUM(f.score) as "totalScore",
