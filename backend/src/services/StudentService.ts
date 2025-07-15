@@ -81,14 +81,14 @@ export class StudentService {
         SELECT score FROM "Subject" WHERE name = ${subjectName}
       ),
       score_bins AS (
-        SELECT generate_series(0, 10, ${step}) AS score
+        SELECT generate_series(0, 10, ${step}::numeric) AS score
       )
       SELECT
         score_bins.score,
         COUNT(fs.score) AS count
       FROM score_bins
       LEFT JOIN filtered_subjects fs
-        ON ABS(fs.score - score_bins.score) < ${step} / 2.0
+        ON ABS(fs.score - score_bins.score) < ${step}::numeric / 2.0
       GROUP BY score_bins.score
       ORDER BY score_bins.score ASC
     `;
