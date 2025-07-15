@@ -109,7 +109,7 @@ export class StudentService {
     return {
       subject: subjectName,
       levels: levelObj,
-      scoreDistribution: scoreDist.map(s => ({ score: Number(s.score), count: Number(s.count) })),
+      scoreDistribution: scoreDist.map((s: any) => ({ score: Number(s.score), count: Number(s.count) })),
     };
   }
 
