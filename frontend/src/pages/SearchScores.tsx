@@ -17,7 +17,7 @@ const SearchScores: React.FC = () => {
       return;
     }
     setInputError(null);
-    execute(`${process.env.REACT_APP_API_URL || 'http://localhost:3000'}/students/${regNumber.trim()}`);
+    execute(`${process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000'}/students/${regNumber.trim()}`);
   };
 
   useEffect(() => {

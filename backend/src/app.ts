@@ -11,7 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({
-  origin: 'http://localhost:5324' // hoặc domain frontend thực tế
+  origin: ['http://localhost:3000', 'https://g-scores-xpv7.onrender.com'], // hoặc domain frontend thực tế
 }));
 app.use(express.json());
 app.use('/', routes);
