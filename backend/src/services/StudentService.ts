@@ -72,17 +72,18 @@ export class StudentService {
 
   // RAW SQL: Thống kê số lượng học sinh theo level và phân phối điểm cho một môn
   async getSubjectStatisticsRaw(subjectName: string, step: number = 0.25) {
-    // Dùng CTE để lọc trước các subject theo tên
+    // Định nghĩa biểu thức làm tròn score
+    const scoreExpr = `ROUND(ROUND(score::numeric / ${step}) * ${step}, 2)`;
     const scoreDist = await prisma.$queryRaw<
       { score: number, count: number }[]
     >`
       WITH filtered_subjects AS (
         SELECT * FROM "Subject" WHERE name = ${subjectName}
       )
-      SELECT ROUND(ROUND(score::numeric / ${step}) * ${step}, 2) AS score, COUNT(*) AS count
+      SELECT ${scoreExpr} AS score, COUNT(*) AS count
       FROM filtered_subjects
-      GROUP BY ROUND(ROUND(score::numeric / ${step}) * ${step}, 2)
-      ORDER BY score ASC
+      GROUP BY ${scoreExpr}
+      ORDER BY ${scoreExpr} ASC
     `;
 
     const levels = await prisma.$queryRaw<
