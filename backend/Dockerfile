@@ -7,6 +7,9 @@ RUN npm install
 
 COPY . .
 
+# Thêm dòng này sau khi copy code vào image
+RUN npx prisma generate
+
 RUN npm run build
 
 # Nếu muốn tối ưu, có thể xóa devDependencies sau khi build:
