@@ -158,7 +158,7 @@ const Reports: React.FC = () => {
               <option value="D">D</option>
             </select>
           </div>
-          {topBlockLoading && <PopupLoading message="Đang tải top 10 học sinh..." />}
+          {topBlockLoading && <PopupLoading message="Đang tải dữ liệu..." />}
           {topBlockError && <PopupError message={topBlockError} onClose={() => {}} />}
           {topBlockData && <TopBlockTable students={topBlockData} />}
         </div>
