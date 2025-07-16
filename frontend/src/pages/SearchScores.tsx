@@ -36,7 +36,7 @@ const SearchScores: React.FC = () => {
   }, [inputError, data]);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto px-2 sm:px-6 space-y-8">
       {/* Tiêu đề lớn */}
       <h1 className="text-3xl font-bold text-center text-blue-900 mb-2">Search Scores</h1>
       {/* Dòng Detailed Scores */}

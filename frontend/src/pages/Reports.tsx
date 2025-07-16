@@ -89,7 +89,7 @@ const Reports: React.FC = () => {
   }, [block]);
 
   return (
-    <div className="max-w-8xl mx-auto">
+    <div className="max-w-8xl mx-auto px-2 sm:px-6">
 
       {/* Tiêu đề cho chức năng phân bố điểm */}
       <h2 className="text-xl font-bold mb-4 text-blue-700">Phân bố điểm theo môn học</h2>
