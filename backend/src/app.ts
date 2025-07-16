@@ -11,7 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://g-scores-fe-otam.onrender.com'], // hoặc domain frontend thực tế
+  origin: ['http://localhost:3000', 'https://g-scores-fe-otam.onrender.com', 'https://go-scores.netlify.app/'], // hoặc domain frontend thực tế
 }));
 app.use(express.json());
 app.use('/', routes);
